@@ -3,8 +3,8 @@
         "test": "webpack-dev-server --inline --hot --host 0.0.0.0",
         "build": "node build-prod/build.js"
     },
-    "name": "lib-upload",
-    "version": "0.0.1",
+    "name": "lib-uploader",
+    "version": "0.0.3",
     "description": "",
     "main": "./src/index.js",
     "dependencies": {

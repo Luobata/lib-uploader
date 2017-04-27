@@ -15,6 +15,7 @@ var setting = {
     button_text: '',
     button_image_url: resBase + 'swfupload.js?button_image_url',
 };
+var id = 0;
 
 function upload(dom, conf) {
     if (dom) {
@@ -27,10 +28,18 @@ function upload(dom, conf) {
             upload_progress_handler: conf.progress,
             button_placeholder_id: 'selectFiles4'
         });
-        uploader.create(dom, conf.uploadUrl, function (response, file) {
+        conf.id = id++;
+        var fn = conf.fn;
+        conf.fn = function (response, file) {
+            if (typeof response === 'string') response = JSON.parse(response);
+            fn.apply(this, arguments);
+        }
+        uploader.create(dom, conf);
+        return;
+        uploader.create(dom, conf.uploadUrl, function (response, file, conf) {
             if (typeof response === 'string') response = JSON.parse(response);
             conf.fn(response, file);
-        });
+        }, conf);
     }
 };
 var fnLoadScript = function (src, fun) {
@@ -57,7 +66,7 @@ var fnLoadScript = function (src, fun) {
 
     head.appendChild(script);
 };
-var fnInit = function ($dom, url, fn) {
+var fnInit = function ($dom, conf) {
     var height = lib.getHeight($dom);
     var width = lib.getWidth($dom);
 
@@ -66,41 +75,42 @@ var fnInit = function ($dom, url, fn) {
     }
     var id = 'id-' + (+new Date());
     var html = '\
-            <span style="position: absolute; top: 0; left: 0; height: ' + height + 'px; width: ' + width + 'px; overflow: hidden; opacity: 0.1; filter:alpha(opacity=10); z-index: 100;">\
+            <span style="position: absolute; top: 0; left: 0; height: ' + height + 'px; width: ' + width + 'px; overflow: hidden; opacity: 0; filter:alpha(opacity=0); z-index: 100;">\
                 <span  id="' + id + '"></span>\
             </span>\
         ';
     lib.prepend($dom, html);
 
     var _setting = lib.extends(setting, {
-        upload_url: url,
+        upload_url: conf.uploadUrl,
         button_placeholder_id: id,
         button_width: width,
         button_height: height,
         button_cursor: SWFUpload.CURSOR.HAND,
         button_window_mode: SWFUpload.WINDOW_MODE.TRANSPARENT,
+        conf: conf,
 
         file_dialog_complete_handler: function () {
             this.startUpload();
         },
 
         file_queue_error_handler: function (a, b, c) {
-            fn && fn(b, c);
+            this.settings.conf.fn(b, c);
         },
 
         upload_success_handler: function (a, b, c) {
-            fn && fn(b, a);
+            this.settings.conf.fn(b, a);
         }
     });
 
-    var tmp = new SWFUpload(_setting);
+    var tmp = new SWFUpload(lib.clone(_setting));
 };
 var uploader = {
-    create: function ($dom, url, fn) {
+    create: function ($dom, conf) {
         if (window.SWFUpload) {
-            fnInit($dom, url, fn);
+            fnInit($dom, conf);
         } else {
-            initList.push([$dom, url, fn]);
+            initList.push([$dom, conf]);
 
             if (loading) {
                 return;
@@ -113,7 +123,7 @@ var uploader = {
                 var i, item;
                 for (i = 0; i < initList.length; i++) {
                     item = initList[i];
-                    fnInit(item[0], item[1], item[2]);
+                    fnInit(item[0], item[1]);
                 }
                 initList = [];
             });
@@ -121,29 +131,6 @@ var uploader = {
     },
     config: function (paramsConfig) {
         lib.extends(setting, paramsConfig);
-    }
-};
-var SWFUploadInit = function ($dom) {
-    if (window.SWFUpload) {
-        fnInit($dom, url, fn);
-    } else {
-        initList.push([$dom, url, fn]);
-
-        if (loading) {
-            return;
-        }
-
-        loading = true;
-        fnLoadScript(resBase + 'swfupload.js', function () {
-            loading = false;
-
-            var i, item;
-            for (i = 0; i < initList.length; i++) {
-                item = initList[i];
-                fnInit(item[0], item[1], item[2]);
-            }
-            initList = [];
-        });
     }
 };
 module.exports = upload;

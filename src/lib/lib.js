@@ -9,6 +9,29 @@ var lib = {
         }
         return source;
     },
+    clone: function (obj) {
+        var o;  
+        if (typeof obj === "object") {  
+            if (obj === null) {  
+                o = null;  
+            } else {  
+                if (obj instanceof Array) {  
+                    o = [];  
+                    for (var i = 0, len = obj.length; i < len; i++) {  
+                        o.push(this.clone(obj[i]));  
+                    }  
+                } else {  
+                    o = {};  
+                    for (var j in obj) {  
+                        o[j] = this.clone(obj[j]);  
+                    }  
+                }  
+            }  
+        } else {  
+            o = obj;  
+        }  
+        return o;
+    },
     isObject: function (obj) {
         return typeof obj === 'object' && !(obj instanceof Array);
     },

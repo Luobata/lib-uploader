@@ -10,7 +10,7 @@ var lint = function (file, conf) {
     var result = {
         error: ''
     };
-    var type = result.type = file.name.split('.').pop();
+    var type = result.type = file.name.split('.').pop().toLowerCase();
     var name = result.name = lib.getRandomString(32) + '.' + type;
 
     if (types === '*') {
@@ -45,7 +45,7 @@ var beforeUpload = function (dom, conf) {
     if (lib.css(dom, 'position') === 'static' || lib.css(dom, 'position') === '') {
         lib.css(dom, 'position', 'relative');
     }
-    var input = '<input type="file" style="position: absolute; width: 100%; height: 100%; opacity: 0; filter: alpha(opacity=10); cursor: pointer; top: 0; left: 0; z-index: 100;" name="" />';
+    var input = '<input type="file" style="position: absolute; width: 100%; height: 100%; opacity: 0; filter: alpha(opacity=0); cursor: pointer; top: 0; left: 0; z-index: 100;" name="" />';
     lib.prepend(dom, input);
     var uploadDom = dom.querySelector('input');
     min = conf.min;
