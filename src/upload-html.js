@@ -52,24 +52,27 @@ var beforeUpload = function (dom, conf) {
     max = conf.max;
     types = conf.type;
     dom.addEventListener('change', function (e) {
-        var file = e.target.files[0];
-        var lintFile = lint(file);
-        if (lintFile.error) {
-            conf.fn(lintFile);
-            return;
-        }
-        conf.beforeUpload && conf.beforeUpload(file);
-        if (conf.uploadUrl) {
-            // hack onchange
-            (function () {
-                var success = conf.fn;
-                conf.fn = function (res, file) {
-                    success.call(this, res, file);
-                    uploadDom.value = '';
-                };
-            }());
-            uploadAjax(file, lintFile.name, conf);
-        }
+		var file = e.target.files;
+		var i;
+		var item;
+		for (i = 0; i < file.length; i++) {
+			item = file[i];
+			var lintFile = lint(item);
+			// hack onchange
+			(function () {
+				var success = conf.fn;
+				conf.fn = function (res, file) {
+					success.call(this, res, file);
+					uploadDom.value = '';
+				};
+			}());
+			if (lintFile.error) {
+				conf.fn(lintFile);
+				return;
+			}
+			conf.beforeUpload && conf.beforeUpload(item);
+			uploadAjax(item, lintFile.name, lib.clone(conf));
+		}
     });
 };
 

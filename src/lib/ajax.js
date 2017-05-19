@@ -16,16 +16,14 @@ module.exports = function (conf) {
     }
     if (xhr.upload) {
         if (conf.progress && typeof conf.progress === 'function') {
-            //xhr.upload.addEventListener('progress', function (e) {
-            //    conf.progress(e);
-            //});
-
-            xhr.upload.onprogress = function (event) {
-                if (event.lengthComputable) {
-                    var percentComplete = event.loaded / event.total;
-                    conf.progress(conf.file, percentComplete);
-                }
-            };
+            (function (conf) {
+                xhr.upload.onprogress = function (event) {
+                    if (event.lengthComputable) {
+                        var percentComplete = event.loaded / event.total;
+                        conf.progress(conf.file, percentComplete);
+                    }
+                };
+            })(conf)
         }
 
 
