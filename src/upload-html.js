@@ -45,7 +45,8 @@ var beforeUpload = function (dom, conf) {
     if (lib.css(dom, 'position') === 'static' || lib.css(dom, 'position') === '') {
         lib.css(dom, 'position', 'relative');
     }
-    var input = '<input type="file" style="position: absolute; width: 100%; height: 100%; opacity: 0; filter: alpha(opacity=0); cursor: pointer; top: 0; left: 0; z-index: 100;" name="" />';
+    var isMulti = conf.isMultiple ? 'multiple' : '';
+    var input = '<input type="file"' + isMulti + ' style="position: absolute; width: 100%; height: 100%; opacity: 0; filter: alpha(opacity=0); cursor: pointer; top: 0; left: 0; z-index: 100;" name="" />';
     lib.prepend(dom, input);
     var uploadDom = dom.querySelector('input');
     min = conf.min;

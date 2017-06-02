@@ -24,7 +24,6 @@ function upload(dom, conf) {
             file_size_limit: conf.max + 'B',
             file_post_name: conf.fileName,
             file_types: format.typeFormat(conf.type),
-            upload_start_handler: conf.beforeUpload,
             upload_progress_handler: conf.progress,
             button_placeholder_id: 'selectFiles4'
         });
@@ -89,15 +88,15 @@ var fnInit = function ($dom, conf) {
         button_cursor: SWFUpload.CURSOR.HAND,
         button_window_mode: SWFUpload.WINDOW_MODE.TRANSPARENT,
         conf: conf,
-
+        upload_start_handler: function () {
+            this.settings.conf.beforeUpload()
+        },
         file_dialog_complete_handler: function () {
             this.startUpload();
         },
-
         file_queue_error_handler: function (a, b, c) {
             this.settings.conf.fn(b, c);
         },
-
         upload_success_handler: function (a, b, c) {
             this.settings.conf.fn(b, a);
         }

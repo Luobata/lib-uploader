@@ -20,6 +20,7 @@ var upload = function (config) {
         min: 50 * 1024,
         max: 2.5 * 1024 * 1024,
         credentials: true,
+        isMultiple: false,
         beforeUpload: function () {
         },
         fn: function (res) {
@@ -34,7 +35,7 @@ var upload = function (config) {
         console.log('缺少必要参数!');
         return;
     }
-    if (window.File && window.fetch) {
+    if (window.File) {
         // file 对象 fn 回调 tokenUrl 获取token的
         uploadHtml(dom, conf);
     } else {
