@@ -8,11 +8,11 @@ upload({
     uploadUrl: 'http://10.16.39.69:3000/demo/upload',
     fileName: 'image',
     fileName: 'file',
-    min: 0,
+    min: 500 * 1024,
     max: 10 * 10 * 1024,
     type: '*',
+    isMultiple: true,
     fn: function (res) {
-        console.log(2);
         console.log(res);
     }
 });
