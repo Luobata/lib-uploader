@@ -1,4 +1,5 @@
 var upload = require('../src/index.js');
+var upload = require('../dist/bundle.js');
 
 upload({
     id: '#upload',
