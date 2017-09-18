@@ -1,17 +1,16 @@
 var loading = false;
 var initList = [];
 var resBase = 'http://changyan.itc.cn/mdevp/extensions/cui/002/swfupload.v2.2.0/';
+var resBase = '//t.focus-res.cn/front-end/upload/';
 var lib = require('./lib/lib');
 var format = require('./lib/format');
 
 var setting = {
     flash_url: resBase + 'swfupload.swf',
     prevent_swf_caching: false,
-
     file_size_limit: '1 MB',
     file_post_name: 'file',
     file_types: '*.jpg;*.png;*.gif;*.jpeg',
-
     button_text: '',
     button_image_url: resBase + 'swfupload.js?button_image_url',
 };
@@ -34,11 +33,6 @@ function upload(dom, conf) {
             fn.apply(this, arguments);
         }
         uploader.create(dom, conf);
-        return;
-        uploader.create(dom, conf.uploadUrl, function (response, file, conf) {
-            if (typeof response === 'string') response = JSON.parse(response);
-            conf.fn(response, file);
-        }, conf);
     }
 };
 var fnLoadScript = function (src, fun) {
@@ -116,7 +110,9 @@ var uploader = {
             }
 
             loading = true;
-            fnLoadScript(resBase + 'swfupload.js', function () {
+            require.ensure(['./util/swfupload.js'], function () {
+            // fnLoadScript(resBase + 'swfupload.js', function () {
+                require('./util/swfupload.js');
                 loading = false;
 
                 var i, item;
