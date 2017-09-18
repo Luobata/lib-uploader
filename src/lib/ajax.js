@@ -31,7 +31,7 @@ module.exports = function (conf) {
         xhr.open(conf.method, conf.uploadUrl, true);
         xhr.setRequestHeader('Accept', '*/*');
         xhr.withCredentials = conf.credentials;
-        xhr.onreadystatechange = function(e) {
+        xhr.onreadystatechange = function (e) {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
                     typeof conf.fn === 'function' && conf.fn(JSON.parse(xhr.response), conf.file);

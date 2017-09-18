@@ -63,7 +63,7 @@ npm run test
 | beforeUpload \(function\) | 上传前执行函数 |  | function \(file\) {} file:文件对象 |
 | fn \(function\) \* | 上传之后的回调 | function \(res\) { console.log\(res\); } | fn \(data, file\) {} data: 服务端返回值 file: 文件对象 |
 | progress \(function\) | 上传进度方法 每次进度变化触发 | 无 | function \(file, percent, total\) {} file: 文件对象 percent:当前进度 total: 总进度 |
-| isMulti \(boolean\)\ | 是否支持多文件上传 | false |  |
+| isMulti \(boolean\) | 是否支持多文件上传 | false |  |
 
 # 注意事项
 
