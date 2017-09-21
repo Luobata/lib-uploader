@@ -4,14 +4,14 @@
  * @date 2017年1月7日14:46:03
  * */
 
-var lib = require('./lib/lib');
-var lint = require('./lib/lint');
-var hack = require('./hack');
-var uploadHtml = require('./upload-html');
+import lib from '.lib/lib';
+import lint from './lib/lint';
+import hack from './hack';
+import uploadHtml from './upload-html';
 var uploadSwf = require('./upload-swf');
 
-var upload = function (config) {
-    var conf = {
+const upload = function (config) {
+    const conf = {
         uploadUrl: '',
         type: ['png', 'jpg', 'jpeg'],
         method: 'POST',
@@ -36,10 +36,8 @@ var upload = function (config) {
         return;
     }
     if (window.File) {
-        // file 对象 fn 回调 tokenUrl 获取token的
         uploadHtml(dom, conf);
     } else {
-        // input file的父元素 上传地址 回调
         hack(conf);
         uploadSwf(dom, conf);
     }

@@ -1,9 +1,8 @@
-var hex_sha1 = require('./md5.js');
-var lib = require('./lib/lib');
-var ajax = require('./lib/ajax');
-var time;
+import lib from './lib/lib';
+import ajax from './lib/ajax';
+let time;
 
-var lint = function (file, conf) {
+const lint = function (file, conf) {
     var result = {
         error: '',
         errorType: 0
@@ -29,7 +28,7 @@ var lint = function (file, conf) {
     return result;
 };
 
-var uploadAjax = function (file, name, conf) {
+const uploadAjax = (file, name, conf) => {
     var formData = new FormData();
     var uploadData = {
         name: conf.fileName,
@@ -41,7 +40,7 @@ var uploadAjax = function (file, name, conf) {
     ajax(conf);
 };
 
-var beforeUpload = function (dom, conf) {
+const beforeUpload = function (dom, conf) {
     if (lib.css(dom, 'position') === 'static' || lib.css(dom, 'position') === '') {
         lib.css(dom, 'position', 'relative');
     }
@@ -88,4 +87,4 @@ var beforeUpload = function (dom, conf) {
     });
 };
 
-module.exports = beforeUpload;
+export default beforeUpload;

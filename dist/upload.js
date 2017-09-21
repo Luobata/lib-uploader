@@ -492,10 +492,8 @@ var src = createCommonjsModule(function (module) {
             return;
         }
         if (window.File) {
-            // file 对象 fn 回调 tokenUrl 获取token的
             uploadHtml(dom, conf);
         } else {
-            // input file的父元素 上传地址 回调
             hack_1(conf);
             uploadSwf(dom, conf);
         }
@@ -508,8 +506,6 @@ var src = createCommonjsModule(function (module) {
 
 var _upload;
 var _upload2;
-
-// var upload = require('../dist/bundle.js');
 
 src((_upload = {
     id: '#upload',

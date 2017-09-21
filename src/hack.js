@@ -1,4 +1,4 @@
-var hack = function (conf) {
+export default (conf) => {
     var success = conf.fn;
     conf.fn = function (res, file) {
         if (res === -110) {
@@ -9,5 +9,3 @@ var hack = function (conf) {
         success.call(this, res, file);
     };
 };
-
-module.exports = hack;

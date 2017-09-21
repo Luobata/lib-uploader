@@ -1,4 +1,4 @@
-var lib = {
+const lib = {
     extends: function (source, target) {
         for (var k in target) {
             if (lib.isObject(target[k]) && lib.isObject(source[k])) {
@@ -75,4 +75,4 @@ var lib = {
     }
 };
 
-module.exports = lib;
+export default lib;

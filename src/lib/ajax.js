@@ -1,4 +1,4 @@
-var lint = function (conf) {
+const lint = function (conf) {
     var lintFile = {};
     if (conf.url) {
         lintFile.error = '缺少参数url';
@@ -6,7 +6,7 @@ var lint = function (conf) {
     return lintFile;
 };
 
-module.exports = function (conf) {
+export default (conf) => {
     var that = this;
     var lintFile = lint(conf);
     var xhr = new XMLHttpRequest();
