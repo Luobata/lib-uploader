@@ -18,7 +18,7 @@ module.exports = {
     name: 'libUpload',
     sourcemap: true,
     output: {
-        file: 'dist/upload.js',
+        file: 'dist/bundle.js',
         format: 'umd'
     },
     plugins: [

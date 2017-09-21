@@ -10,6 +10,7 @@ import vue from 'rollup-plugin-vue';
 import image from 'rollup-plugin-img';
 import url from 'rollup-plugin-url';
 import flow from 'rollup-plugin-flow';
+import serve from 'rollup-plugin-serve';
 
 const root = path.resolve(__dirname, './');
 
@@ -23,6 +24,10 @@ module.exports = {
     },
     plugins: [
         // uglify(),
+        serve({
+            contentBase: '',
+            port: 5556
+        }),
         resolve(),
         commonjs(),
         vue({
