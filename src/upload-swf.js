@@ -29,6 +29,7 @@ function upload(dom, conf) {
         conf.id = id++;
         var fn = conf.fn;
         conf.fn = function (response, file) {
+            // 校验大小
             if (typeof response === 'string') response = JSON.parse(response);
             fn.apply(this, arguments);
         }
