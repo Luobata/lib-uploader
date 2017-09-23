@@ -111,9 +111,7 @@ var uploader = {
             }
 
             loading = true;
-            // require.ensure(['./util/swfupload.js'], function () {
             fnLoadScript(resBase + 'swfupload.js', function () {
-                // require('./util/swfupload.js');
                 loading = false;
 
                 var i, item;

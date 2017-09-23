@@ -143,7 +143,6 @@ var lib = {
 var config = {
     uploadUrl: '',
     selecter: '',
-    domain: '',
     type: ['png', 'jpg', 'jpeg'],
     method: 'POST',
     fileName: 'image',
@@ -151,6 +150,18 @@ var config = {
     // max: 2.5 * 1024 * 1024,
     credentials: true,
     isMultiple: false,
+    cap: {
+        minWid: 50,
+        maxWid: 800,
+        minHei: 60,
+        maxHei: 900,
+        validate: function validate(res) {
+            var url = 't-img.51f.com/' + res.data.url;
+            var img = new Image();
+            img.url = url;
+            console.log(img);
+        }
+    },
     beforeUpload: function beforeUpload() {},
     fn: function fn(res) {},
     progress: function progress(res) {}
@@ -318,10 +329,6 @@ var lint = function lint(file) {
         result.errorType = 1;
     }
 
-    //if (conf.type === '*') {
-    //    return result;
-    //}
-
     if (!validateType.call(this, type)) {
         result.error = '图片类型错误!';
         result.errorType = result.errorType ? 3 : 2;
@@ -398,6 +405,8 @@ var upload = {
         return upload;
     }
 };
+
+//module.exports = upload;
 
 var _upload$upload;
 

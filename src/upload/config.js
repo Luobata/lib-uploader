@@ -1,7 +1,6 @@
 export let config = {
     uploadUrl: '',
     selecter: '',
-    domain: '',
     type: ['png', 'jpg', 'jpeg'],
     method: 'POST',
     fileName: 'image',
@@ -9,6 +8,18 @@ export let config = {
     // max: 2.5 * 1024 * 1024,
     credentials: true,
     isMultiple: false,
+    cap: {
+        minWid: 50,
+        maxWid: 800,
+        minHei: 60,
+        maxHei: 900,
+        validate (res) {
+            const url = 't-img.51f.com/' + res.data.url;
+            const img = new Image();
+            img.url = url;
+            console.log(img);
+        }
+    },
     beforeUpload: function () {
     },
     fn: function (res) {

@@ -79,10 +79,6 @@ const lint = function (file) {
         result.errorType = 1;
     }
 
-    //if (conf.type === '*') {
-    //    return result;
-    //}
-
     if (!validateType.call(this, type)) {
         result.error = '图片类型错误!';
         result.errorType = result.errorType ? 3 : 2;
