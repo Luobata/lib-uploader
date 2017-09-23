@@ -2,7 +2,7 @@
 // 校验conf是否合法
 // 通过call传递this 不能使用箭头函数
 export const validateConf = function () {
-    if (!this.conf.uploadUrl || !this.conf.id || !this.conf.fn) {
+    if (!this.conf.uploadUrl || !this.conf.selecter || !this.conf.fn) {
         return false;
     }
 

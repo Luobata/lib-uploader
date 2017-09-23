@@ -20,9 +20,29 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 
 
+var classCallCheck = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
 
+var createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
 
-
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
 
 
 
@@ -122,10 +142,10 @@ var lib = {
 
 var config = {
     uploadUrl: '',
+    selecter: '',
     domain: '',
     type: ['png', 'jpg', 'jpeg'],
     method: 'POST',
-    selecter: '#upload',
     fileName: 'image',
     min: 50 * 1024,
     max: 2.5 * 1024 * 1024,
@@ -140,24 +160,33 @@ var setConfig = function setConfig(conf) {
     config = Object.assign(config, conf);
 };
 
-var _this = undefined;
-
 // 返回true 代表合法 false代表不合法
 // 校验conf是否合法
+// 通过call传递this 不能使用箭头函数
+var validateConf = function validateConf() {
+    if (!this.conf.uploadUrl || !this.conf.selecter || !this.conf.fn) {
+        return false;
+    }
 
+    return true;
+};
 // 校验类型
 var validateType = function validateType(type) {
-    if (_this.conf.type === '*') {
+    if (this.conf.type === '*') {
         return true;
     }
 
-    return !!(_this.conf.type.indexOf(type) !== -1);
+    return !!(this.conf.type.indexOf(type) !== -1);
 };
 // 校验尺寸
 var validateSize = function validateSize(size) {
-    return size >= _this.conf.min && (!_this.conf.max || size <= _this.conf.max);
+    return size >= this.conf.min && (!this.conf.max || size <= this.conf.max);
 };
 // 校验文件大小
+
+var beforeUpload = function beforeUpload(upload) {
+    upload.init();
+};
 
 var lint$1 = function lint(conf) {
     var lintFile = {};
@@ -205,6 +234,81 @@ var ajax = (function (conf) {
     }
 });
 
+var Upload = function () {
+    function Upload(conf) {
+        classCallCheck(this, Upload);
+
+        this.conf = conf;
+        this.dom = document.querySelector(this.conf.selecter);
+
+        this.lintConf();
+    }
+
+    createClass(Upload, [{
+        key: 'lintConf',
+        value: function lintConf() {
+            if (!validateConf.call(this)) {
+                console.log('缺少必要参数!');
+                return;
+            }
+        }
+    }, {
+        key: 'init',
+        value: function init() {
+            var _this = this;
+
+            if (lib.css(this.dom, 'position') === 'static' || lib.css(this.dom, 'position') === '') {
+                lib.css(this.dom, 'position', 'relative');
+            }
+            var isMulti = this.conf.isMultiple ? 'multiple' : '';
+            var input = '<input type="file"' + isMulti + ' style="position: absolute; width: 100%; height: 100%; opacity: 0; filter: alpha(opacity=0); cursor: pointer; top: 0; left: 0; z-index: 100;" name="" />';
+            lib.prepend(this.dom, input);
+            this.uploadDom = this.dom.querySelector('input');
+
+            this.dom.addEventListener('change', function (e) {
+                var file = e.target.files;
+                var i = void 0;
+                var item = void 0;
+                var errors = [];
+                var error = '';
+
+                for (i = 0; i < file.length; i++) {
+                    item = file[i];
+                    errors[i] = lint.call(_this, item).errorType;
+                }
+                if (errors.indexOf(1) !== -1 || errors.indexOf(3) !== -1) {
+                    error += '图片大小不符合要求';
+                }
+                if (errors.indexOf(2) !== -1 || errors.indexOf(3) !== -1) {
+                    if (error) error += '、';
+                    error += '图片格式不符合要求';
+                }
+                if (error) {
+                    _this.conf.fn({ error: error });
+                    return;
+                }
+                for (i = 0; i < file.length; i++) {
+                    item = file[i];
+                    var lintFile = lint.call(_this, item);
+                    // hack onchange
+                    hack: {
+                        var success = _this.conf.fn;
+                        _this.conf.fn = function (res, file) {
+                            success.call(_this, res, file);
+                            _this.uploadDom.value = '';
+                        };
+                    }
+                    _this.conf.beforeUpload && _this.conf.beforeUpload(item);
+                    uploadAjax(item, lintFile.name, Object.assign({}, _this.conf));
+                }
+            });
+        }
+    }]);
+    return Upload;
+}();
+
+
+
 var lint = function lint(file) {
     var result = {
         error: '',
@@ -213,7 +317,7 @@ var lint = function lint(file) {
     var type = result.type = file.name.split('.').pop().toLowerCase();
     var name = result.name = lib.getRandomString(32) + '.' + type;
 
-    if (!validateSize(file.size)) {
+    if (!validateSize.call(this, file.size)) {
         result.error = '图片大小不符合要求!';
         result.errorType = 1;
     }
@@ -222,7 +326,7 @@ var lint = function lint(file) {
     //    return result;
     //}
 
-    if (!validateType(type)) {
+    if (!validateType.call(this, type)) {
         result.error = '图片类型错误!';
         result.errorType = result.errorType ? 3 : 2;
         return result;
@@ -241,53 +345,6 @@ var uploadAjax = function uploadAjax(file, name, conf) {
     formData.append(conf.fileName, file);
     conf.data = formData;
     ajax(conf);
-};
-
-var beforeUpload = function beforeUpload(dom, conf) {
-    if (lib.css(dom, 'position') === 'static' || lib.css(dom, 'position') === '') {
-        lib.css(dom, 'position', 'relative');
-    }
-    var isMulti = conf.isMultiple ? 'multiple' : '';
-    var input = '<input type="file"' + isMulti + ' style="position: absolute; width: 100%; height: 100%; opacity: 0; filter: alpha(opacity=0); cursor: pointer; top: 0; left: 0; z-index: 100;" name="" />';
-    lib.prepend(dom, input);
-    var uploadDom = dom.querySelector('input');
-    dom.addEventListener('change', function (e) {
-        var file = e.target.files;
-        var i = void 0;
-        var item = void 0;
-        var errors = [];
-        var error = '';
-
-        for (i = 0; i < file.length; i++) {
-            item = file[i];
-            errors[i] = lint(item).errorType;
-        }
-        if (errors.indexOf(1) !== -1 || errors.indexOf(3) !== -1) {
-            error += '图片大小不符合要求';
-        }
-        if (errors.indexOf(2) !== -1 || errors.indexOf(3) !== -1) {
-            if (error) error += '、';
-            error += '图片格式不符合要求';
-        }
-        if (error) {
-            conf.fn({ error: error });
-            return;
-        }
-        for (i = 0; i < file.length; i++) {
-            item = file[i];
-            var lintFile = lint(item);
-            // hack onchange
-            (function () {
-                var success = conf.fn;
-                conf.fn = function (res, file) {
-                    success.call(this, res, file);
-                    uploadDom.value = '';
-                };
-            })();
-            conf.beforeUpload && conf.beforeUpload(item);
-            uploadAjax(item, lintFile.name, Object.assign({}, conf));
-        }
-    });
 };
 
 (function () {
@@ -332,8 +389,8 @@ var upload = {
         setConfig(conf);
     },
     upload: function upload(conf) {
-        var con = Object.assign(config, conf);
-        var upload = new Upload(con);
+        var con = Object.assign({}, config);
+        var upload = new Upload(Object.assign(con, conf));
 
         if (window.File) {
             beforeUpload(upload);
@@ -357,7 +414,7 @@ upload.config({
 });
 
 upload.upload({
-    id: '#upload',
+    selecter: '#upload',
     // uploadUrl: '//adv.focus-dev.cn/api/upload/image/qualification',
     // uploadUrl: '//mp.focus-dev.cn/common/image/upload?type=1',
     // uploadUrl: 'http://10.0.76.115:3000/demo/upload',
@@ -367,7 +424,7 @@ upload.upload({
     }
 });
 upload.upload((_upload$upload = {
-    id: '#upload2',
+    selecter: '#upload2',
     uploadUrl: '//adv.focus-dev.cn/api/upload/image/qualification'
 }, defineProperty(_upload$upload, 'uploadUrl', '//mp.focus-dev.cn/common/image/upload?type=1'), defineProperty(_upload$upload, 'uploadUrl', 'http://10.0.76.115:3000/demo/upload'), defineProperty(_upload$upload, 'uploadUrl', 'http://10.16.39.69:3000/demo/upload'), defineProperty(_upload$upload, 'fileName', 'image'), defineProperty(_upload$upload, 'fileName', 'file'), defineProperty(_upload$upload, 'min', 0), defineProperty(_upload$upload, 'max', 10 * 10 * 1024), defineProperty(_upload$upload, 'type', '*'), defineProperty(_upload$upload, 'fn', function fn(res) {
     console.log(1);

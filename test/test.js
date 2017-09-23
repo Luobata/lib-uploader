@@ -10,7 +10,7 @@ upload.config({
 
 
 upload.upload({
-    id: '#upload',
+    selecter: '#upload',
     // uploadUrl: '//adv.focus-dev.cn/api/upload/image/qualification',
     // uploadUrl: '//mp.focus-dev.cn/common/image/upload?type=1',
     // uploadUrl: 'http://10.0.76.115:3000/demo/upload',
@@ -20,7 +20,7 @@ upload.upload({
     }
 });
 upload.upload({
-    id: '#upload2',
+    selecter: '#upload2',
     uploadUrl: '//adv.focus-dev.cn/api/upload/image/qualification',
     uploadUrl: '//mp.focus-dev.cn/common/image/upload?type=1',
     uploadUrl: 'http://10.0.76.115:3000/demo/upload',

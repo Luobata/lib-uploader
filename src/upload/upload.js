@@ -5,7 +5,7 @@ import ajax from '../lib/ajax';
 export default class Upload {
     constructor (conf) {
         this.conf = conf;
-        this.dom = document.querySelecter(conf.selecter);
+        this.dom = document.querySelector(this.conf.selecter);
 
         this.lintConf();
     };
@@ -26,7 +26,7 @@ export default class Upload {
         lib.prepend(this.dom, input);
         this.uploadDom = this.dom.querySelector('input');
 
-        this.dom.addEventListener('change', function (e) {
+        this.dom.addEventListener('change', (e) => {
             const file = e.target.files;
             let i;
             let item;
@@ -52,13 +52,13 @@ export default class Upload {
                 item = file[i];
                 const lintFile = lint.call(this, item);
                 // hack onchange
-                (function () {
+                hack: {
                     var success = this.conf.fn;
-                    this.conf.fn = function (res, file) {
+                    this.conf.fn = (res, file) => {
                         success.call(this, res, file);
-                        uploadDom.value = '';
+                        this.uploadDom.value = '';
                     };
-                }());
+                }
                 this.conf.beforeUpload && this.conf.beforeUpload(item);
                 uploadAjax(item, lintFile.name, Object.assign({}, this.conf));
             }

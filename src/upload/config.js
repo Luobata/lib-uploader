@@ -1,9 +1,9 @@
 export let config = {
     uploadUrl: '',
+    selecter: '',
     domain: '',
     type: ['png', 'jpg', 'jpeg'],
     method: 'POST',
-    selecter: '#upload',
     fileName: 'image',
     min: 50 * 1024,
     max: 2.5 * 1024 * 1024,

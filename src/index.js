@@ -4,21 +4,22 @@
  * @date 2017年1月7日14:46:03
  * */
 
-import lib from './lib/lib';
-import hack from './upload/hack';
-import { setConfig, config } from './upload/config';
-import { validateConf } from './upload/validate';
-import uploadHtml from './upload/upload-html';
-import uploadSwf from './upload/upload-swf';
-import './lib/polyfill';
+import lib from 'LIB/lib';
+import hack from 'UPLOAD/hack';
+import { setConfig, config } from 'UPLOAD/config';
+import { validateConf } from 'UPLOAD/validate';
+import uploadHtml from 'UPLOAD/upload-html';
+import uploadSwf from 'UPLOAD/upload-swf';
+import Upload from 'UPLOAD/upload';
+import 'LIB/polyfill';
 
 const upload = {
     config (conf) {
         setConfig(conf);
     },
     upload (conf) {
-        const con = Object.assign(config, conf);
-        const upload = new Upload(con);
+        const con = Object.assign({}, config);
+        const upload = new Upload(Object.assign(con, conf));
 
         if (window.File) {
             uploadHtml(upload);
