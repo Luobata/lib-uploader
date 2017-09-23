@@ -3,7 +3,8 @@ import upload from '../src/index';
 upload.config({
     uploadUrl: 'http://10.16.39.69:3000/demo/upload',
     fileName: 'file',
-    min: 0,
+    type: '*',
+    // min: 100 * 1024,
     max: null,
     isMultiple: true
 })
@@ -28,7 +29,7 @@ upload.upload({
     fileName: 'image',
     fileName: 'file',
     min: 0,
-    max: 10 * 10 * 1024,
+    max: 10 * 1024,
     type: '*',
     fn: function (res) {
         console.log(1);

@@ -147,8 +147,8 @@ var config = {
     type: ['png', 'jpg', 'jpeg'],
     method: 'POST',
     fileName: 'image',
-    min: 50 * 1024,
-    max: 2.5 * 1024 * 1024,
+    // min: 50 * 1024,
+    // max: 2.5 * 1024 * 1024,
     credentials: true,
     isMultiple: false,
     beforeUpload: function beforeUpload() {},
@@ -180,13 +180,9 @@ var validateType = function validateType(type) {
 };
 // 校验尺寸
 var validateSize = function validateSize(size) {
-    return size >= this.conf.min && (!this.conf.max || size <= this.conf.max);
+    return (!this.conf.min || size >= this.conf.min) && (!this.conf.max || size <= this.conf.max);
 };
 // 校验文件大小
-
-var beforeUpload = function beforeUpload(upload) {
-    upload.init();
-};
 
 var lint$1 = function lint(conf) {
     var lintFile = {};
@@ -393,7 +389,7 @@ var upload = {
         var upload = new Upload(Object.assign(con, conf));
 
         if (window.File) {
-            beforeUpload(upload);
+            upload.init();
         } else {
             //hack(con);
             //uploadSwf(dom, con);
@@ -408,7 +404,8 @@ var _upload$upload;
 upload.config({
     uploadUrl: 'http://10.16.39.69:3000/demo/upload',
     fileName: 'file',
-    min: 0,
+    type: '*',
+    // min: 100 * 1024,
     max: null,
     isMultiple: true
 });
@@ -426,7 +423,7 @@ upload.upload({
 upload.upload((_upload$upload = {
     selecter: '#upload2',
     uploadUrl: '//adv.focus-dev.cn/api/upload/image/qualification'
-}, defineProperty(_upload$upload, 'uploadUrl', '//mp.focus-dev.cn/common/image/upload?type=1'), defineProperty(_upload$upload, 'uploadUrl', 'http://10.0.76.115:3000/demo/upload'), defineProperty(_upload$upload, 'uploadUrl', 'http://10.16.39.69:3000/demo/upload'), defineProperty(_upload$upload, 'fileName', 'image'), defineProperty(_upload$upload, 'fileName', 'file'), defineProperty(_upload$upload, 'min', 0), defineProperty(_upload$upload, 'max', 10 * 10 * 1024), defineProperty(_upload$upload, 'type', '*'), defineProperty(_upload$upload, 'fn', function fn(res) {
+}, defineProperty(_upload$upload, 'uploadUrl', '//mp.focus-dev.cn/common/image/upload?type=1'), defineProperty(_upload$upload, 'uploadUrl', 'http://10.0.76.115:3000/demo/upload'), defineProperty(_upload$upload, 'uploadUrl', 'http://10.16.39.69:3000/demo/upload'), defineProperty(_upload$upload, 'fileName', 'image'), defineProperty(_upload$upload, 'fileName', 'file'), defineProperty(_upload$upload, 'min', 0), defineProperty(_upload$upload, 'max', 10 * 1024), defineProperty(_upload$upload, 'type', '*'), defineProperty(_upload$upload, 'fn', function fn(res) {
     console.log(1);
     console.log(res);
 }), _upload$upload));

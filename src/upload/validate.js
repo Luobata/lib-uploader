@@ -18,7 +18,7 @@ export const validateType = function (type) {
 };
 // 校验尺寸
 export const validateSize = function (size) {
-    return size >= this.conf.min && (!this.conf.max || size <= this.conf.max);
+    return (!this.conf.min || size >= this.conf.min) && (!this.conf.max || size <= this.conf.max);
 };
 // 校验文件大小
 export const validateCap = function () {

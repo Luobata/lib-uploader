@@ -8,7 +8,6 @@ import lib from 'LIB/lib';
 import hack from 'UPLOAD/hack';
 import { setConfig, config } from 'UPLOAD/config';
 import { validateConf } from 'UPLOAD/validate';
-import uploadHtml from 'UPLOAD/upload-html';
 import uploadSwf from 'UPLOAD/upload-swf';
 import Upload from 'UPLOAD/upload';
 import 'LIB/polyfill';
@@ -22,7 +21,7 @@ const upload = {
         const upload = new Upload(Object.assign(con, conf));
 
         if (window.File) {
-            uploadHtml(upload);
+            upload.init();
         } else {
             //hack(con);
             //uploadSwf(dom, con);
