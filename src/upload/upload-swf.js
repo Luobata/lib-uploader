@@ -1,9 +1,9 @@
-var loading = false;
-var initList = [];
-var resBase = 'http://changyan.itc.cn/mdevp/extensions/cui/002/swfupload.v2.2.0/';
-var resBase = '//t.focus-res.cn/front-end/upload/';
-var lib = require('./lib/lib');
-var format = require('./lib/format');
+import lib from '../lib/lib';
+import format from '../lib/format';
+let loading = false;
+let initList = [];
+// const resBase = 'http://changyan.itc.cn/mdevp/extensions/cui/002/swfupload.v2.2.0/';
+const resBase = '//t.focus-res.cn/front-end/upload/';
 
 var setting = {
     flash_url: resBase + 'swfupload.swf',
@@ -129,4 +129,4 @@ var uploader = {
         lib.extends(setting, paramsConfig);
     }
 };
-module.exports = upload;
+export default upload;

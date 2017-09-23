@@ -1,4 +1,4 @@
-let config = {
+export let config = {
     uploadUrl: '',
     domain: '',
     type: ['png', 'jpg', 'jpeg'],
@@ -17,8 +17,6 @@ let config = {
     }
 };
 
-export setConfig = (conf) {
+export const setConfig = (conf) => {
     config = Object.assign(config, conf);
 };
-
-export config;

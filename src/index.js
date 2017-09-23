@@ -5,11 +5,12 @@
  * */
 
 import lib from './lib/lib';
-import hack from './hack';
+import hack from './upload/hack';
 import { setConfig, config } from './upload/config';
 import { validateConf } from './upload/validate';
-import uploadHtml from './upload-html';
-var uploadSwf = require('./upload-swf');
+import uploadHtml from './upload/upload-html';
+import uploadSwf from './upload/upload-swf';
+import './lib/polyfill';
 
 const upload = {
     config (conf) {
@@ -17,21 +18,18 @@ const upload = {
     },
     upload (conf) {
         const con = Object.assign(config, conf);
-        let dom;
+        const upload = new Upload(con);
 
-        dom = document.querySelector(con.selecter);
-        if (!validateConf(con)) {
-            console.log('缺少必要参数!');
-            return;
-        }
         if (window.File) {
-            uploadHtml(dom, conf);
+            uploadHtml(upload);
         } else {
-            hack(conf);
-            uploadSwf(dom, conf);
+            //hack(con);
+            //uploadSwf(dom, con);
         }
+
+        return upload;
     }
 };
 
-module.exports = upload;
+//module.exports = upload;
 export default upload;

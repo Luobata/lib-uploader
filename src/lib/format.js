@@ -1,5 +1,5 @@
-module.exports = {
-    typeFormat: function (typeArray) {
+export default {
+    typeFormat (typeArray) {
         if (typeArray === '*') return '*';
         if (!typeArray || !typeArray.length) return '';
         typeArray.forEach(function (item, index) {
@@ -7,7 +7,7 @@ module.exports = {
         });
         return typeArray.join(';');
     },
-    sizeFormat: function (size) {
+    sizeFormat (size) {
         if (!size || !parseFloat(size, 10)) return '0B';
         var unit = 'B';
         var hihgUnit = function (unit) {

@@ -1,7 +1,7 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
 	typeof define === 'function' && define.amd ? define(factory) :
-	(global.libUpload = factory());
+	(factory());
 }(this, (function () { 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
@@ -120,27 +120,46 @@ var lib = {
     }
 };
 
-var lint = (function (conf) {
-    if (!conf.uploadUrl || !conf.id || !conf.fn) {
-        return false;
+var config = {
+    uploadUrl: '',
+    domain: '',
+    type: ['png', 'jpg', 'jpeg'],
+    method: 'POST',
+    selecter: '#upload',
+    fileName: 'image',
+    min: 50 * 1024,
+    max: 2.5 * 1024 * 1024,
+    credentials: true,
+    isMultiple: false,
+    beforeUpload: function beforeUpload() {},
+    fn: function fn(res) {},
+    progress: function progress(res) {}
+};
+
+var setConfig = function setConfig(conf) {
+    config = Object.assign(config, conf);
+};
+
+var _this = undefined;
+
+// 返回true 代表合法 false代表不合法
+// 校验conf是否合法
+
+// 校验类型
+var validateType = function validateType(type) {
+    if (_this.conf.type === '*') {
+        return true;
     }
 
-    return true;
-});
+    return !!(_this.conf.type.indexOf(type) !== -1);
+};
+// 校验尺寸
+var validateSize = function validateSize(size) {
+    return size >= _this.conf.min && (!_this.conf.max || size <= _this.conf.max);
+};
+// 校验文件大小
 
-var hack = (function (conf) {
-    var success = conf.fn;
-    conf.fn = function (res, file) {
-        if (res === -110) {
-            res = {
-                error: '图片大小不符合要求'
-            };
-        }
-        success.call(this, res, file);
-    };
-});
-
-var lint$2 = function lint(conf) {
+var lint$1 = function lint(conf) {
     var lintFile = {};
     if (conf.url) {
         lintFile.error = '缺少参数url';
@@ -149,9 +168,9 @@ var lint$2 = function lint(conf) {
 };
 
 var ajax = (function (conf) {
-    var lintFile = lint$2(conf);
+    var lintFile = lint$1(conf);
     var xhr = new XMLHttpRequest();
-    if (lint$2.error && conf.fn && typeof conf.fn === 'function') {
+    if (lint$1.error && conf.fn && typeof conf.fn === 'function') {
         conf.fn(lintFile);
         return;
     }
@@ -186,7 +205,7 @@ var ajax = (function (conf) {
     }
 });
 
-var lint$1 = function lint(file, conf) {
+var lint = function lint(file) {
     var result = {
         error: '',
         errorType: 0
@@ -194,16 +213,16 @@ var lint$1 = function lint(file, conf) {
     var type = result.type = file.name.split('.').pop().toLowerCase();
     var name = result.name = lib.getRandomString(32) + '.' + type;
 
-    if (file.size < conf.min || file.size > conf.max) {
+    if (!validateSize(file.size)) {
         result.error = '图片大小不符合要求!';
         result.errorType = 1;
     }
 
-    if (conf.type === '*') {
-        return result;
-    }
+    //if (conf.type === '*') {
+    //    return result;
+    //}
 
-    if (conf.type.indexOf(type) === -1) {
+    if (!validateType(type)) {
         result.error = '图片类型错误!';
         result.errorType = result.errorType ? 3 : 2;
         return result;
@@ -234,14 +253,14 @@ var beforeUpload = function beforeUpload(dom, conf) {
     var uploadDom = dom.querySelector('input');
     dom.addEventListener('change', function (e) {
         var file = e.target.files;
-        var i;
-        var item;
+        var i = void 0;
+        var item = void 0;
         var errors = [];
         var error = '';
 
         for (i = 0; i < file.length; i++) {
             item = file[i];
-            errors[i] = lint$1(item, conf).errorType;
+            errors[i] = lint(item).errorType;
         }
         if (errors.indexOf(1) !== -1 || errors.indexOf(3) !== -1) {
             error += '图片大小不符合要求';
@@ -256,7 +275,7 @@ var beforeUpload = function beforeUpload(dom, conf) {
         }
         for (i = 0; i < file.length; i++) {
             item = file[i];
-            var lintFile = lint$1(item, conf);
+            var lintFile = lint(item);
             // hack onchange
             (function () {
                 var success = conf.fn;
@@ -266,10 +285,41 @@ var beforeUpload = function beforeUpload(dom, conf) {
                 };
             })();
             conf.beforeUpload && conf.beforeUpload(item);
-            uploadAjax(item, lintFile.name, lib.clone(conf));
+            uploadAjax(item, lintFile.name, Object.assign({}, conf));
         }
     });
 };
+
+(function () {
+	if (typeof Object.assign != 'function') {
+		Object.assign = function (target, varArgs) {
+			// .length of function is 2
+			'use strict';
+
+			if (target == null) {
+				// TypeError if undefined or null
+				throw new TypeError('Cannot convert undefined or null to object');
+			}
+
+			var to = Object(target);
+
+			for (var index = 1; index < arguments.length; index++) {
+				var nextSource = arguments[index];
+
+				if (nextSource != null) {
+					// Skip over if undefined or null
+					for (var nextKey in nextSource) {
+						// Avoid bugs when hasOwnProperty is shadowed
+						if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+							to[nextKey] = nextSource[nextKey];
+						}
+					}
+				}
+			}
+			return to;
+		};
+	}
+})();
 
 /*
  * @description lib-upload 通用的上传组件
@@ -277,72 +327,52 @@ var beforeUpload = function beforeUpload(dom, conf) {
  * @date 2017年1月7日14:46:03
  * */
 
-var uploadSwf = require('./upload-swf');
-
 var upload = {
-    config: function config() {},
-    upload: function upload(config) {
-        var conf = {
-            uploadUrl: '',
-            domain: '',
-            type: ['png', 'jpg', 'jpeg'],
-            method: 'POST',
-            id: '#upload',
-            fileName: 'image',
-            min: 50 * 1024,
-            max: 2.5 * 1024 * 1024,
-            credentials: true,
-            isMultiple: false,
-            beforeUpload: function beforeUpload$$1() {},
-            fn: function fn(res) {
-                console.log('upload success');
-            },
-            progress: function progress(res) {}
-        };
-        lib.extends(conf, config);
-        var dom = document.querySelector(conf.id);
-        if (!lint(conf)) {
-            console.log('缺少必要参数!');
-            return;
-        }
+    config: function config$$1(conf) {
+        setConfig(conf);
+    },
+    upload: function upload(conf) {
+        var con = Object.assign(config, conf);
+        var upload = new Upload(con);
+
         if (window.File) {
-            beforeUpload(dom, conf);
+            beforeUpload(upload);
         } else {
-            hack(conf);
-            uploadSwf(dom, conf);
+            //hack(con);
+            //uploadSwf(dom, con);
         }
+
+        return upload;
     }
 };
 
-module.exports = upload;
+var _upload$upload;
 
-
-var src = Object.freeze({
-	default: upload
+upload.config({
+    uploadUrl: 'http://10.16.39.69:3000/demo/upload',
+    fileName: 'file',
+    min: 0,
+    max: null,
+    isMultiple: true
 });
 
-var upload$2 = ( src && upload ) || src;
-
-var _upload;
-var _upload2;
-
-upload$2((_upload = {
+upload.upload({
     id: '#upload',
-    uploadUrl: '//adv.focus-dev.cn/api/upload/image/qualification'
-}, defineProperty(_upload, 'uploadUrl', '//mp.focus-dev.cn/common/image/upload?type=1'), defineProperty(_upload, 'uploadUrl', 'http://10.0.76.115:3000/demo/upload'), defineProperty(_upload, 'uploadUrl', 'http://10.16.39.69:3000/demo/upload'), defineProperty(_upload, 'fileName', 'image'), defineProperty(_upload, 'fileName', 'file'), defineProperty(_upload, 'min', 100 * 1024), defineProperty(_upload, 'max', 10 * 1024 * 1024), defineProperty(_upload, 'isMultiple', true), defineProperty(_upload, 'fn', function fn(res) {
-    console.log(res);
-}), _upload));
-upload$2((_upload2 = {
+    // uploadUrl: '//adv.focus-dev.cn/api/upload/image/qualification',
+    // uploadUrl: '//mp.focus-dev.cn/common/image/upload?type=1',
+    // uploadUrl: 'http://10.0.76.115:3000/demo/upload',
+    // fileName: 'image',
+    fn: function fn(res) {
+        console.log(res);
+    }
+});
+upload.upload((_upload$upload = {
     id: '#upload2',
     uploadUrl: '//adv.focus-dev.cn/api/upload/image/qualification'
-}, defineProperty(_upload2, 'uploadUrl', '//mp.focus-dev.cn/common/image/upload?type=1'), defineProperty(_upload2, 'uploadUrl', 'http://10.0.76.115:3000/demo/upload'), defineProperty(_upload2, 'uploadUrl', 'http://10.16.39.69:3000/demo/upload'), defineProperty(_upload2, 'fileName', 'image'), defineProperty(_upload2, 'fileName', 'file'), defineProperty(_upload2, 'min', 0), defineProperty(_upload2, 'max', 10 * 10 * 1024), defineProperty(_upload2, 'type', '*'), defineProperty(_upload2, 'fn', function fn(res) {
+}, defineProperty(_upload$upload, 'uploadUrl', '//mp.focus-dev.cn/common/image/upload?type=1'), defineProperty(_upload$upload, 'uploadUrl', 'http://10.0.76.115:3000/demo/upload'), defineProperty(_upload$upload, 'uploadUrl', 'http://10.16.39.69:3000/demo/upload'), defineProperty(_upload$upload, 'fileName', 'image'), defineProperty(_upload$upload, 'fileName', 'file'), defineProperty(_upload$upload, 'min', 0), defineProperty(_upload$upload, 'max', 10 * 10 * 1024), defineProperty(_upload$upload, 'type', '*'), defineProperty(_upload$upload, 'fn', function fn(res) {
     console.log(1);
     console.log(res);
-}), _upload2));
-
-var test = {};
-
-return test;
+}), _upload$upload));
 
 })));
 //# sourceMappingURL=upload.js.map

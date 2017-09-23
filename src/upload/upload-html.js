@@ -1,25 +1,26 @@
-import lib from './lib/lib';
-import ajax from './lib/ajax';
+import lib from '../lib/lib';
+import ajax from '../lib/ajax';
+import { validateSize, validateType } from './validate';
 let time;
 
-const lint = function (file, conf) {
-    var result = {
+const lint = function (file) {
+    let result = {
         error: '',
         errorType: 0
     };
-    var type = result.type = file.name.split('.').pop().toLowerCase();
-    var name = result.name = lib.getRandomString(32) + '.' + type;
+    const type = result.type = file.name.split('.').pop().toLowerCase();
+    const name = result.name = lib.getRandomString(32) + '.' + type;
 
-    if (file.size < conf.min || file.size > conf.max) {
+    if (!validateSize(file.size)) {
         result.error = '图片大小不符合要求!';
         result.errorType = 1;
     }
 
-    if (conf.type === '*') {
-        return result;
-    }
+    //if (conf.type === '*') {
+    //    return result;
+    //}
 
-    if (conf.type.indexOf(type) === -1) {
+    if (!validateType(type)) {
         result.error = '图片类型错误!';
         result.errorType = result.errorType ? 3 : 2;
         return result;
@@ -29,8 +30,8 @@ const lint = function (file, conf) {
 };
 
 const uploadAjax = (file, name, conf) => {
-    var formData = new FormData();
-    var uploadData = {
+    let formData = new FormData();
+    const uploadData = {
         name: conf.fileName,
         file: file
     };
@@ -41,23 +42,18 @@ const uploadAjax = (file, name, conf) => {
 };
 
 const beforeUpload = function (dom, conf) {
-    if (lib.css(dom, 'position') === 'static' || lib.css(dom, 'position') === '') {
-        lib.css(dom, 'position', 'relative');
-    }
-    var isMulti = conf.isMultiple ? 'multiple' : '';
-    var input = '<input type="file"' + isMulti + ' style="position: absolute; width: 100%; height: 100%; opacity: 0; filter: alpha(opacity=0); cursor: pointer; top: 0; left: 0; z-index: 100;" name="" />';
-    lib.prepend(dom, input);
-    var uploadDom = dom.querySelector('input');
+const beforeUpload = function (upload) {
+    upload.init();
     dom.addEventListener('change', function (e) {
-		var file = e.target.files;
-		var i;
-		var item;
-        var errors = [];
-        var error = '';
+		const file = e.target.files;
+		let i;
+		let item;
+        let errors = [];
+        let error = '';
 
         for (i = 0; i < file.length; i++) {
             item = file[i];
-            errors[i] = lint(item, conf).errorType;
+            errors[i] = lint(item).errorType;
         }
         if (errors.indexOf(1) !== -1 || errors.indexOf(3) !== -1) {
             error += '图片大小不符合要求';
@@ -72,7 +68,7 @@ const beforeUpload = function (dom, conf) {
         }
 		for (i = 0; i < file.length; i++) {
 			item = file[i];
-			var lintFile = lint(item, conf);
+			const lintFile = lint(item);
 			// hack onchange
 			(function () {
 				var success = conf.fn;
@@ -82,7 +78,7 @@ const beforeUpload = function (dom, conf) {
 				};
 			}());
 			conf.beforeUpload && conf.beforeUpload(item);
-			uploadAjax(item, lintFile.name, lib.clone(conf));
+			uploadAjax(item, lintFile.name, Object.assign({}, conf));
 		}
     });
 };
