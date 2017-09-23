@@ -1,5 +1,10 @@
 // 校验conf是否合法
-export const validateConf = () => {
+export const validateConf = (conf) => {
+    if (!conf.uploadUrl || !conf.id || !conf.fn) {
+        return false;
+    }
+
+    return true;
 };
 // 校验类型
 export const validateType = () => {

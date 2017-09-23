@@ -7,7 +7,6 @@ const lint = function (conf) {
 };
 
 export default (conf) => {
-    var that = this;
     var lintFile = lint(conf);
     var xhr = new XMLHttpRequest();
     if (lint.error && conf.fn && typeof conf.fn === 'function') {

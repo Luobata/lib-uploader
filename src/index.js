@@ -4,38 +4,23 @@
  * @date 2017年1月7日14:46:03
  * */
 
-import lib from '.lib/lib';
-import lint from './lib/lint';
+import lib from './lib/lib';
 import hack from './hack';
+import { setConfig, config } from './upload/config';
+import { validateConf } from './upload/validate';
 import uploadHtml from './upload-html';
 var uploadSwf = require('./upload-swf');
 
 const upload = {
-    config () {
+    config (conf) {
+        setConfig(conf);
     },
-    upload (config) {
-        const conf = {
-            uploadUrl: '',
-            domain: '',
-            type: ['png', 'jpg', 'jpeg'],
-            method: 'POST',
-            id: '#upload',
-            fileName: 'image',
-            min: 50 * 1024,
-            max: 2.5 * 1024 * 1024,
-            credentials: true,
-            isMultiple: false,
-            beforeUpload: function () {
-            },
-            fn: function (res) {
-                console.log('upload success');
-            },
-            progress: function (res) {
-            }
-        };
-        lib.extends(conf, config);
-        var dom = document.querySelector(conf.id);
-        if (!lint(conf)) {
+    upload (conf) {
+        const con = Object.assign(config, conf);
+        let dom;
+
+        dom = document.querySelector(con.selecter);
+        if (!validateConf(con)) {
             console.log('缺少必要参数!');
             return;
         }
@@ -45,11 +30,8 @@ const upload = {
             hack(conf);
             uploadSwf(dom, conf);
         }
-    };
-}
+    }
+};
 
-if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = upload;
-} else {
-    window.upload = upload;
-}
+module.exports = upload;
+export default upload;
