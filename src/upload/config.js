@@ -14,10 +14,10 @@ export let config = {
         minHei: 60,
         maxHei: 900,
         validate (res) {
-            const url = 't-img.51f.com/' + res.data.url;
+            const url = '//t-img.51f.com/' + res.data.url;
             const img = new Image();
-            img.url = url;
-            console.log(img);
+            img.src = url;
+            return img;
         }
     },
     beforeUpload: function () {

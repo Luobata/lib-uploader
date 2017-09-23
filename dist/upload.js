@@ -156,10 +156,10 @@ var config = {
         minHei: 60,
         maxHei: 900,
         validate: function validate(res) {
-            var url = 't-img.51f.com/' + res.data.url;
+            var url = '//t-img.51f.com/' + res.data.url;
             var img = new Image();
-            img.url = url;
-            console.log(img);
+            img.src = url;
+            return img;
         }
     },
     beforeUpload: function beforeUpload() {},
@@ -194,6 +194,31 @@ var validateSize = function validateSize(size) {
     return (!this.conf.min || size >= this.conf.min) && (!this.conf.max || size <= this.conf.max);
 };
 // 校验文件大小
+var validateCap = function validateCap(img) {
+    var _this = this;
+
+    return new Promise(function (resolve, reject) {
+        var val = function val(img) {
+            var width = img.width;
+            var height = img.height;
+            var cap = _this.conf.cap;
+            if (cap.minWid && width < cap.minWid || cap.maxWid && width > cap.maxWid || cap.minHei && height < cap.minHei || cap.maxHei && height > cap.maxHei) {
+                reject({
+                    error: '图片尺寸不符合要求!'
+                });
+            } else {
+                resolve();
+            }
+        };
+        if (img.complete) {
+            return val(img);
+        } else {
+            img.onload = function () {
+                return val(img);
+            };
+        }
+    });
+};
 
 var lint$1 = function lint(conf) {
     var lintFile = {};
@@ -301,14 +326,25 @@ var Upload = function () {
                     hack: {
                         var success = _this.conf.fn;
                         _this.conf.fn = function (res, file) {
-                            success.call(_this, res, file);
                             _this.uploadDom.value = '';
+                            if (_this.conf.cap && _this.conf.cap.validate && _this.isImg()) {
+                                validateCap.call(_this, _this.conf.cap.validate(res)).then(function () {
+                                    success.call(_this, res, file);
+                                }, function (error) {
+                                    success.call(_this, error);
+                                });
+                            }
                         };
                     }
                     _this.conf.beforeUpload && _this.conf.beforeUpload(item);
                     uploadAjax(item, lintFile.name, Object.assign({}, _this.conf));
                 }
             });
+        }
+    }, {
+        key: 'isImg',
+        value: function isImg() {
+            return true;
         }
     }]);
     return Upload;

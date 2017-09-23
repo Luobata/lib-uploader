@@ -1,4 +1,4 @@
-import { validateConf, validateSize, validateType } from './validate';
+import { validateConf, validateSize, validateType, validateCap } from './validate';
 import lib from '../lib/lib';
 import ajax from '../lib/ajax';
 
@@ -55,14 +55,25 @@ export default class Upload {
                 hack: {
                     var success = this.conf.fn;
                     this.conf.fn = (res, file) => {
-                        success.call(this, res, file);
                         this.uploadDom.value = '';
+                        if (this.conf.cap && this.conf.cap.validate && this.isImg()) {
+                            validateCap.call(this, this.conf.cap.validate(res))
+                                .then(() => {
+                                    success.call(this, res, file);
+                                }, (error) => {
+                                    success.call(this, error);
+                                });
+                        }
                     };
                 }
                 this.conf.beforeUpload && this.conf.beforeUpload(item);
                 uploadAjax(item, lintFile.name, Object.assign({}, this.conf));
             }
         });
+    };
+
+    isImg () {
+        return true;
     };
 };
 
